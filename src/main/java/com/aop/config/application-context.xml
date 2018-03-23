@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+	<bean id="math" class="com.aop.beans.MathBean" />
+
+	<bean id="loancalc" class="com.aop.beans.LoanCalculator" />
+
+	<bean id="authentmanager" class="com.aop.beans.AuthenticationMaanager" />
+	
+	<bean id="otpbean" class="com.aop.beans.Otpgenerator" />
+	
+	<bean id="throwerbean" class="com.aop.beans.ThrowerBean" />
+	
+	<bean id="logAspect" class="com.aop.aspect.LoggerAspect" />
+
+	<bean id="secAspect" class="com.aop.aspect.SecurityAspect">
+		<property name="authenticationMaanager" ref="authentmanager"></property>
+	</bean>
+
+	<bean id="otpAspect" class="com.aop.aspect.OtpCheckerAspect" />
+	
+	<bean id="throwerAspect" class="com.aop.aspect.ThrowerAspect" />
+
+	<aop:config>
+
+		<aop:pointcut expression="execution(* com.aop.beans.MathBean.add(..))"
+			id="logpointcut" />
+
+		<aop:pointcut
+			expression="execution(* com.aop.beans.LoanCalculator.calculate(..))"
+			id="loanPointCut" />
+
+		<aop:pointcut
+			expression="execution(* com.aop.beans.Otpgenerator.generateOtp(..))"
+			id="otpPointcut" />
+			
+		<aop:pointcut
+			expression="execution(* com.aop.beans.ThrowerBean.input(..))"
+			id="throwerPointCut" />
+		
+		
+
+		<aop:aspect ref="logAspect">
+
+			<aop:around method="log" pointcut-ref="logpointcut" />
+		</aop:aspect>
+
+		<aop:aspect ref="secAspect">
+			<aop:before method="checkLogin" pointcut-ref="loanPointCut" />
+
+		</aop:aspect>
+		
+		<aop:aspect ref="otpAspect">
+		
+				<aop:after-returning method="checkOtp" pointcut-ref="otpPointcut" returning="result"/>
+		</aop:aspect>
+		
+		<aop:aspect ref="throwerAspect">
+				<aop:after-throwing method="log" pointcut-ref="throwerPointCut" throwing="e"/>
+		</aop:aspect>
+
+	</aop:config>
+
+
+</beans>
+
+
